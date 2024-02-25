@@ -10,17 +10,17 @@ const {
 } = require('../../controllers/thoughtController');
 // /api/thought
 router.route('/').get(getThoughts).post(createThought);
-// /api/thoughts/:thoughtsId
+// /api/thought/:thoughtsId
 router
-    .route('/:thoughtsId')
+    .route('/:thoughtId')
     .get(getSingleThought)
     .put(updateThought)
     .delete(deleteThought);
-// /api/thoughts/:thoughtsId/reaction
-router.route('/thoughtsId/reaction').post(addReaction);
-// /api/thoughts/:thoughtsId/reaction/:reactionId
+// /api/thought/:thoughtId/reaction
+router.route('/thoughtId/reaction').post(addReaction);
+// /api/thought/:thoughtId/reaction/:reactionId
 router
-    .route('/:thoughtsId/reaction/:reactionId')
+    .route('/:thoughtId/reaction/:reactionId')
     .delete(deleteReaction);
 
 module.exports = router;

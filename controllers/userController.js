@@ -52,5 +52,70 @@ module.exports = {
             res.status(500).json(err);
         }
     },
-    //
-}
+    // Delete a user
+    async deleteUser(req, res) {
+        try {
+            const user = await User.findOneAndDelete({ _id: req.params.userId });
+            if (!user) {
+                return res.status(404).json({ message: 'User does not exist'});
+            }
+            // when user is delete, thought is deleted as well
+            await Thought.deleteMany({ _id: { $in: user.thought } });
+            res.json({ message: 'User and thoughts deleted' });
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+    // Add friend
+    async addFriend(req, res) {
+        try {
+            const { userId } = req.params;
+            const { friendId } = req.body;
+
+            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
+                return res.status(400).json({ message: 'Invalid userId or friendId' });
+            }
+
+            const user = await User.findOneAndUpdate(
+                { _id: userId },
+                { $addToSet: { friends: friendId } }, // $addToSet ensures no duplicates
+                { new: true }
+            );
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.json({ message: 'Friend added successfully', user });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
+    // Delete friend
+    async deleteFriend(req, res) {
+        try {
+            const { userId, friendId } = req.params;
+
+            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
+                return res.status(400).json({ message: 'Invalid userId or friendId' });
+            }
+
+            const user = await User.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { friends: friendId } }, // $pull removes specific elements from array
+                { new: true }
+            );
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.json({ message: 'Friend deleted successfully', user });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+};

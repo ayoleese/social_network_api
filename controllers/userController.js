@@ -9,7 +9,7 @@ module.exports = {
             res.status(200).json(result);
         } catch (err) {
             console.log('Something went wrong');
-            return res.status(500).json(err);
+            res.status(500).json(err);
         }
     },
     // GET a single user
@@ -102,7 +102,7 @@ module.exports = {
                 return res.status(400).json({ message: 'Invalid userId or friendId' });
             }
 
-            const user = await User.findOneAndUpdate(
+            const user = await User.findOneAndDelete(
                 { _id: userId },
                 { $pull: { friends: friendId } }, // $pull removes specific elements from array
                 { new: true }

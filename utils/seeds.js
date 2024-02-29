@@ -1,10 +1,10 @@
 const { User, Thought, Reaction } = require('../models');
 const connection = require('../config/connection');
-
+// database connection error
 connection.on('error', (err) => {
     console.error('Database connection error: ', err);
 });
-
+// display connection is functioning
 connection.once('open', async () => {
     console.log('Connected to database');
 

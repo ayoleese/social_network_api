@@ -1,4 +1,4 @@
-const { User, Thought, Reaction } = require('../models');
+const { User, Thought } = require('../models');
 const connection = require('../config/connection');
 // database connection error
 connection.on('error', (err) => {
@@ -12,21 +12,24 @@ connection.once('open', async () => {
         {
             username: "lernantino",
             email: "lernantino@gmail.com",
-            thoughts: ["Here's a cool thought..."],
+            thoughts: [],
             friends: [],
         }
     ];
 
     try {
+        // Clearing any existing data
         await User.deleteMany({});
         await Thought.deleteMany({});
-        await Reaction.deleteMany({});
+        // await Reaction.deleteMany({});
 
+        // seed database
         await User.collection.insertMany(seed);
-
+        // logs seed
         console.table(seed);
         console.info('Seeding complete!');
     } catch (err) {
+        // display error when seeding goes wrong
         console.error('Error while seeding: ', err);
     } finally {
         process.exit(0);

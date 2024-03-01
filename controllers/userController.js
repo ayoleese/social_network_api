@@ -5,10 +5,10 @@ module.exports = {
     // GET all users
     async getUsers(req, res) {
         try {
-            const result = await User.find().populate('thought');
+            const result = await User.find();
             res.status(200).json(result);
         } catch (err) {
-            console.log('Something went wrong');
+            console.log(err);
             res.status(500).json(err);
         }
     },
@@ -29,7 +29,7 @@ module.exports = {
     // Create a user
     async createUser(req, res) {
         try {
-            const user = await User.create(req.body);
+            const user = await User.insertOne(req.body);
             res.json(user);
         } catch (err) {
             console.log(err);

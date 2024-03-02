@@ -26,7 +26,17 @@ module.exports = {
     // Create thought
     async createThought(req, res) {
         try {
-            const thought = await Thought.insertOne(req.body);
+            const thought = await Thought.create(req.body);
+            // find and connect thought by username
+            const user = await User.findByIdAndUpdate(
+                { username: req.params.username },
+                { $push: { thoughts: req.params.thoughtId }},
+                { new: true }
+            );
+            if (!user) {
+                await Thought.findByIdAndDelete(req.params.thoughtId);
+                return res.status(404).json({ message: 'Username is needed, try again'});
+            }
             res.json(thought);
         } catch (err) {
             res.status(500).json(err);

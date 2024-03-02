@@ -1,4 +1,4 @@
-const { User, Thought } = require('../models');
+const { User, Thought, Reaction } = require('../models');
 
 module.exports = {
     // Get ALL thoughts
@@ -63,20 +63,14 @@ module.exports = {
     // Add reaction
     async addReaction(req,res) {
         try{
-            const { thoughtId } = req.params;
-            const { reactionId } = req.body;
-
-            if(!thoughtId || !reactionId) {
-                return res.status(400).json({ message: 'Invalid thoughtId or reactionId' });
-            }
-
-            const thought = await Thought.findOneAndUdpate (
-                { _id: thoughtId },
-                { $addToSet: { reactions: reactionId } },
+            // find the thoughtID and by using $addToSet it add the reaction body into the reactions array
+            const thought = await Thought.findOneAndUpdate (
+                { _id: req.params.thoughtId },
+                { $addToSet: { reactions: req.body } },
                 { new: true }
             );
             if (!thought) {
-                return res.status(404).json({ message: 'Thought not found'});
+                return res.status(404).json({ message: 'Thought ID not found', thought });
             }
             res.json({ message: 'You reacted on a thought', thought });
         } catch (err) {
@@ -87,19 +81,14 @@ module.exports = {
     // Remove reaction
     async deleteReaction(req, res) {
         try {
-            const { thoughtId } = req.params;
-            const { reactionId } = req.body;
-
-            if(!thoughtId || !reactionId) {
-                return res.status(400).json({ message: 'Invalid thoughtId or reactionId'});
-            }
-            const thought = await Thought.findOneAndDelete(
-                { _id: thoughtId },
-                { $pull: { reactions: reactionId }},
+            // find thoughtId and use $pull operater to remove reaction from the array
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $pull: { reactions: req.body }},
                 { new: true }
             );
             if (!thought) {
-                return res.status(404).json({ message: 'Thought not found'});
+                return res.status(404).json({ message: 'Thought ID not found', thought });
             }
             res.json({ message: 'Reaction removed' });
         } catch (err) {

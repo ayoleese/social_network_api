@@ -49,20 +49,7 @@ module.exports = {
                 return res.status(404).json({ message: 'No user with this ID'});
             }
 
-            const newThought = new Thought({
-                thoughtText: "",
-                createdAt: new Date(),
-                username: user.username,
-                reactions: []
-            });
-
-            await user.save();
-            user.thoughts.push(newThought);
-            await newThought.save();
-            
-            await user.populate('thoughts').execPopulate();
-
-            res.json({ user});
+            res.json(user);
         } catch (err) {
             res.status(500).json(err);
         }
@@ -83,9 +70,10 @@ module.exports = {
     },
     // Add friend
     async addFriend(req, res) {
-        try {
+        try { 
+            // create variable called friendId with its own unique identifier(aka ID)
             const friendId = new ObjectId();
-            // find user by id and adds friend
+            // find user by id and adds friendID inside the friends array
             const user = await User.findOneAndUpdate(
                 { _id: req.params.userId },
                 { $addToSet: { friends: friendId } }, // $addToSet ensures no duplicates
@@ -94,7 +82,7 @@ module.exports = {
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            await user.save();
+            await user.save(); // saves into document
 
             res.json({ message: 'Friend added successfully', user });
         } catch (err) {
@@ -107,7 +95,7 @@ module.exports = {
     async deleteFriend(req, res) {
         try {
             const friendId = new ObjectId(req.params.friendId);
-            // find user by 
+            // find user by ID then by using $pull operator, it removes the element inside the array
             const user = await User.findOneAndUpdate(
                 { _id: req.params.userId },
                 { $pull: { friends: friendId } }, // $pull removes specific elements from array

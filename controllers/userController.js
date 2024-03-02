@@ -16,8 +16,8 @@ module.exports = {
     async getSingleUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.userId})
-            .select('-__v')
-            .populate('thought');
+            // .select('-__v');
+            .populate('thoughts');
             if (!user) {
                 return res.status(404).json({ message: 'No user with that ID' })
             }
@@ -29,7 +29,7 @@ module.exports = {
     // Create a user
     async createUser(req, res) {
         try {
-            const user = await User.insertOne(req.body);
+            const user = await User.create(req.body);
             res.json(user);
         } catch (err) {
             console.log(err);
@@ -45,9 +45,23 @@ module.exports = {
                 { runValidators: true, new: true }
             );
             if (!user) {
-                res.status(404).json({ message: 'No user with this ID'});
+                return res.status(404).json({ message: 'No user with this ID'});
             }
-            res.json(user);
+
+            const newThought = new Thought({
+                thoughtText: "",
+                createdAt: new Date(),
+                username: user.username,
+                reactions: []
+            });
+
+            await user.save();
+            user.thoughts.push(newThought);
+            await newThought.save();
+            
+            await user.populate('thoughts').execPopulate();
+
+            res.json({ user});
         } catch (err) {
             res.status(500).json(err);
         }

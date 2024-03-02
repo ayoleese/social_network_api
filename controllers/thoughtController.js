@@ -28,15 +28,14 @@ module.exports = {
         try {
             const thought = await Thought.create(req.body);
             // find and connect thought by username
-            const user = await User.findByIdAndUpdate(
-                { username: req.params.username },
-                { $push: { thoughts: req.params.thoughtId }},
-                { new: true }
-            );
+            const user = await User.findOne({ username: req.body.username });
+            // if user does not exist, 
             if (!user) {
-                await Thought.findByIdAndDelete(req.params.thoughtId);
                 return res.status(404).json({ message: 'Username is needed, try again'});
             }
+            user.thoughts.push(thought._id);
+            await user.save();
+
             res.json(thought);
         } catch (err) {
             res.status(500).json(err);
@@ -55,7 +54,7 @@ module.exports = {
     async deleteThought(req, res) {
         try {
             const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
-            res.json(thought);
+            res.json({ message: 'Successfully deleted', thought });
         } catch (err) {
             res.status(500).json(err);
         }

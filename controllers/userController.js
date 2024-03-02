@@ -72,8 +72,8 @@ module.exports = {
             if (!user) {
                 return res.status(404).json({ message: 'User does not exist'});
             }
-            // when user is delete, thought is deleted as well
-            await Thought.deleteMany({ _id: { $in: user.thought } });
+            await Thought.deleteMany({ userId: req.params.userId });
+            
             res.json({ message: 'User and thoughts deleted' });
         } catch (err) {
             res.status(500).json(err);
@@ -82,10 +82,11 @@ module.exports = {
     // Add friend
     async addFriend(req, res) {
         try {
+            const friendId = req.params.friendId;
             // find user by id and adds friend
             const friend = await User.findOneAndUpdate(
                 { _id: req.params.userId },
-                { $addToSet: { friends: req.params.friendId } }, // $addToSet ensures no duplicates
+                { $addToSet: { friends: friendId } }, // $addToSet ensures no duplicates
                 { new: true }
             );
 

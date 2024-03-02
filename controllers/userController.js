@@ -83,24 +83,17 @@ module.exports = {
     // Add friend
     async addFriend(req, res) {
         try {
-            const { userId } = req.params;
-            const { friendId } = req.body;
-
-            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
-                return res.status(400).json({ message: 'Invalid userId or friendId' });
-            }
-
-            const user = await User.findOneAndUpdate(
-                { _id: userId },
-                { $addToSet: { friends: friendId } }, // $addToSet ensures no duplicates
+            const friend = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: req.params.friendId } }, // $addToSet ensures no duplicates
                 { new: true }
             );
 
-            if (!user) {
+            if (!friend) {
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            res.json({ message: 'Friend added successfully', user });
+            res.json({ message: 'Friend added successfully'});
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: 'Internal server error' });
@@ -110,15 +103,9 @@ module.exports = {
     // Delete friend
     async deleteFriend(req, res) {
         try {
-            const { userId, friendId } = req.params;
-
-            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
-                return res.status(400).json({ message: 'Invalid userId or friendId' });
-            }
-
             const user = await User.findOneAndDelete(
-                { _id: userId },
-                { $pull: { friends: friendId } }, // $pull removes specific elements from array
+                { _id: req.params.userId },
+                { $pull: { friends: req.params.friendId } }, // $pull removes specific elements from array
                 { new: true }
             );
 
